@@ -13,6 +13,9 @@ const PORT = process.env.PORT || 3000;
 // Access password - set via environment variable or use default for development
 const ACCESS_PASSWORD = process.env.ACCESS_PASSWORD || 'rrc2025';
 
+// Trust Railway's proxy (required for secure cookies behind load balancer)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({ credentials: true, origin: true }));
 app.use(express.json());
@@ -25,6 +28,7 @@ app.use(session({
     cookie: { 
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     }
 }));
