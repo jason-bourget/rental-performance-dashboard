@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Database
+server/portfolio.db
+
+# Uploads
+server/uploads/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test Excel files (contain real data)
+*.xlsx
+*.xls

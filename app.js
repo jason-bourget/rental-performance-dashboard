@@ -3,233 +3,211 @@
  * Apartment Building Performance Analytics
  */
 
+const API_BASE = '';
+
 // ========================================
-// Sample Data
+// State Management
 // ========================================
 
-const portfolioData = {
-    properties: [
-        {
-            id: 1,
-            name: "The Ashford",
-            address: "1420 Park Avenue, Brooklyn",
-            units: 48,
-            occupancy: 97.9,
-            grossRevenue: 89400,
-            noi: 55200,
-            capRate: 5.8,
-            ownershipPercent: 15,
-            trend: 2.4
-        },
-        {
-            id: 2,
-            name: "Maple Gardens",
-            address: "825 Elm Street, Queens",
-            units: 32,
-            occupancy: 93.8,
-            grossRevenue: 54200,
-            noi: 32800,
-            capRate: 5.2,
-            ownershipPercent: 15,
-            trend: 1.8
-        },
-        {
-            id: 3,
-            name: "Riverside Terrace",
-            address: "2100 River Road, Hoboken",
-            units: 64,
-            occupancy: 91.4,
-            grossRevenue: 118600,
-            noi: 71200,
-            capRate: 5.6,
-            ownershipPercent: 15,
-            trend: -0.8
-        },
-        {
-            id: 4,
-            name: "Summit Place",
-            address: "445 Highland Ave, Jersey City",
-            units: 24,
-            occupancy: 95.8,
-            grossRevenue: 42800,
-            noi: 27400,
-            capRate: 6.1,
-            ownershipPercent: 15,
-            trend: 3.2
-        }
-    ],
-    
-    monthlyData: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        revenue: [285000, 288000, 292000, 295000, 298000, 302000, 305000, 301000, 304000, 308000, 305000, 305000],
-        noi: [171000, 174000, 178000, 180000, 183000, 186000, 188000, 183000, 187000, 190000, 187000, 186600]
-    },
-    
-    expenses: {
-        labels: ['Property Tax', 'Insurance', 'Maintenance', 'Utilities', 'Management', 'Reserves'],
-        values: [28500, 12400, 24800, 18600, 21500, 12600],
-        colors: [
-            'rgba(212, 168, 83, 0.9)',
-            'rgba(56, 189, 248, 0.9)',
-            'rgba(167, 139, 250, 0.9)',
-            'rgba(16, 185, 129, 0.9)',
-            'rgba(244, 63, 94, 0.9)',
-            'rgba(148, 163, 184, 0.9)'
-        ]
-    }
+let state = {
+    properties: [],
+    dashboardData: [],
+    trendData: {},
+    selectedMetric: 'noi',
+    viewMode: 'absolute', // 'absolute' or 'perUnit'
+    selectedProperty: 'all',
+    ownershipView: false,
+    selectedYear: new Date().getFullYear(),
+    selectedMonth: new Date().getMonth() || 12, // Default to current month or December
+    availableMonths: [],
+    trendChart: null
 };
+
+// ========================================
+// API Functions
+// ========================================
+
+async function fetchDashboardData(year, month) {
+    try {
+        const response = await fetch(`${API_BASE}/api/dashboard/${year}/${month}`);
+        if (!response.ok) throw new Error('Failed to fetch dashboard data');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        return [];
+    }
+}
+
+async function fetchTrendData(metric) {
+    try {
+        const response = await fetch(`${API_BASE}/api/trends/${metric}`);
+        if (!response.ok) throw new Error('Failed to fetch trend data');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching trend data:', err);
+        return [];
+    }
+}
+
+async function fetchAvailableMonths() {
+    try {
+        const response = await fetch(`${API_BASE}/api/available-months`);
+        if (!response.ok) throw new Error('Failed to fetch available months');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching available months:', err);
+        return [];
+    }
+}
+
+async function fetchProperties() {
+    try {
+        const response = await fetch(`${API_BASE}/api/properties`);
+        if (!response.ok) throw new Error('Failed to fetch properties');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching properties:', err);
+        return [];
+    }
+}
 
 // ========================================
 // Chart Configuration
 // ========================================
 
-// Global Chart.js defaults
 Chart.defaults.font.family = "'DM Sans', sans-serif";
 Chart.defaults.color = '#94a3b8';
 Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
 
-// Revenue & NOI Chart
-function createRevenueChart() {
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    
-    // Create gradient for revenue
-    const revenueGradient = ctx.createLinearGradient(0, 0, 0, 280);
-    revenueGradient.addColorStop(0, 'rgba(212, 168, 83, 0.3)');
-    revenueGradient.addColorStop(1, 'rgba(212, 168, 83, 0)');
-    
-    // Create gradient for NOI
-    const noiGradient = ctx.createLinearGradient(0, 0, 0, 280);
-    noiGradient.addColorStop(0, 'rgba(16, 185, 129, 0.3)');
-    noiGradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: portfolioData.monthlyData.labels,
-            datasets: [
-                {
-                    label: 'Gross Revenue',
-                    data: portfolioData.monthlyData.revenue,
-                    borderColor: '#d4a853',
-                    backgroundColor: revenueGradient,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#d4a853',
-                    pointBorderColor: '#0a0e17',
-                    pointBorderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 6
-                },
-                {
-                    label: 'Net Operating Income',
-                    data: portfolioData.monthlyData.noi,
-                    borderColor: '#10b981',
-                    backgroundColor: noiGradient,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#10b981',
-                    pointBorderColor: '#0a0e17',
-                    pointBorderWidth: 2,
-                    pointRadius: 0,
-                    pointHoverRadius: 6
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: {
-                intersect: false,
-                mode: 'index'
-            },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: '#1a2234',
-                    titleColor: '#f8fafc',
-                    bodyColor: '#94a3b8',
-                    borderColor: 'rgba(148, 163, 184, 0.2)',
-                    borderWidth: 1,
-                    padding: 14,
-                    cornerRadius: 8,
-                    titleFont: {
-                        size: 13,
-                        weight: 600
-                    },
-                    bodyFont: {
-                        size: 12
-                    },
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': $' + context.raw.toLocaleString();
-                        }
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        display: false
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        }
-                    }
-                },
-                y: {
-                    min: 100000,
-                    grid: {
-                        color: 'rgba(148, 163, 184, 0.08)'
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        },
-                        callback: function(value) {
-                            return '$' + (value / 1000) + 'k';
-                        }
-                    }
-                }
-            }
-        }
-    });
+const chartColors = [
+    '#d4a853', '#10b981', '#38bdf8', '#a78bfa', '#f43f5e', '#fb923c', '#14b8a6'
+];
+
+const metricLabels = {
+    noi: 'Net Operating Income',
+    net_income: 'Net Income',
+    vacancies: 'Vacancies',
+    bad_debt: 'Bad Debt (Rent)',
+    uncollectibles: 'Uncollectibles (Non-Rent)'
+};
+
+// ========================================
+// Chart Functions
+// ========================================
+
+function applyOwnership(value, ownershipPct) {
+    if (!state.ownershipView) return value;
+    return value * (ownershipPct / 100);
 }
 
-// Expense Breakdown Chart
-function createExpenseChart() {
-    const ctx = document.getElementById('expenseChart').getContext('2d');
+// Generate 12 months ending at the specified year/month
+function generate12MonthRange(endYear, endMonth) {
+    const months = [];
+    let year = endYear;
+    let month = endMonth;
     
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: portfolioData.expenses.labels,
-            datasets: [{
-                data: portfolioData.expenses.values,
-                backgroundColor: portfolioData.expenses.colors,
-                borderColor: '#1a2234',
-                borderWidth: 3,
-                hoverOffset: 6
-            }]
-        },
+    for (let i = 0; i < 12; i++) {
+        months.unshift({ year, month });
+        month--;
+        if (month < 1) {
+            month = 12;
+            year--;
+        }
+    }
+    return months;
+}
+
+async function createTrendChart() {
+    const ctx = document.getElementById('trendChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    // Destroy existing chart
+    if (state.trendChart) {
+        state.trendChart.destroy();
+    }
+    
+    // Fetch trend data for selected metric
+    const trendData = await fetchTrendData(state.selectedMetric);
+    if (!trendData.length) {
+        console.log('No trend data available');
+        return;
+    }
+    
+    const isPerUnit = state.viewMode === 'perUnit';
+    const datasets = [];
+    
+    // Generate 12-month range ending at selected reporting period
+    const monthRange = generate12MonthRange(state.selectedYear, state.selectedMonth);
+    const monthNames = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const labels = monthRange.map(m => `${monthNames[m.month]} ${String(m.year).slice(2)}`);
+    
+    const propertiesToShow = state.selectedProperty === 'all' 
+        ? trendData 
+        : trendData.filter(p => p.id === state.selectedProperty);
+    
+    propertiesToShow.forEach((prop, index) => {
+        // Get property ownership
+        const propInfo = state.properties.find(p => p.id === prop.id);
+        const ownership = propInfo?.ownership_percent || 0;
+        
+        // Map data to month range - use null for missing months
+        const data = monthRange.map(({ year, month }) => {
+            const monthData = prop.months.find(m => m.year === year && m.month === month);
+            if (!monthData) return null; // Missing data renders as gap
+            
+            let value = monthData.actual || 0;
+            
+            if (isPerUnit && prop.units) {
+                value = value / prop.units;
+            } else if (!isPerUnit) {
+                value = applyOwnership(value, ownership);
+            }
+            
+            return value;
+        });
+        
+        const color = chartColors[index % chartColors.length];
+        
+        datasets.push({
+            label: prop.name + (state.ownershipView && !isPerUnit ? ` (${ownership}%)` : ''),
+            data: data,
+            borderColor: color,
+            backgroundColor: color + '20',
+            borderWidth: 2.5,
+            fill: state.selectedProperty !== 'all',
+            tension: 0.15,
+            pointRadius: state.selectedProperty === 'all' ? 0 : 4,
+            pointHoverRadius: 5,
+            pointBackgroundColor: color,
+            pointBorderColor: '#0a0e17',
+            pointBorderWidth: 2,
+            spanGaps: false // Don't connect lines across missing data
+        });
+    });
+    
+    const yAxisLabel = isPerUnit 
+        ? `${metricLabels[state.selectedMetric]} per Unit`
+        : metricLabels[state.selectedMetric];
+    
+    state.trendChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutout: '65%',
+            interaction: { intersect: false, mode: 'index' },
             plugins: {
                 legend: {
-                    position: 'bottom',
+                    display: state.selectedProperty === 'all',
+                    position: 'top',
+                    align: 'end',
                     labels: {
+                        boxWidth: 12,
+                        boxHeight: 12,
                         padding: 16,
                         usePointStyle: true,
                         pointStyle: 'circle',
-                        font: {
-                            size: 11
-                        }
+                        font: { size: 11 }
                     }
                 },
                 tooltip: {
@@ -242,86 +220,25 @@ function createExpenseChart() {
                     cornerRadius: 8,
                     callbacks: {
                         label: function(context) {
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((context.raw / total) * 100).toFixed(1);
-                            return '$' + context.raw.toLocaleString() + ' (' + percentage + '%)';
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-// Occupancy Chart
-function createOccupancyChart() {
-    const ctx = document.getElementById('occupancyChart').getContext('2d');
-    
-    const propertyNames = portfolioData.properties.map(p => p.name);
-    const occupancyRates = portfolioData.properties.map(p => p.occupancy);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: propertyNames,
-            datasets: [{
-                label: 'Occupancy Rate',
-                data: occupancyRates,
-                backgroundColor: occupancyRates.map(rate => 
-                    rate >= 95 ? 'rgba(16, 185, 129, 0.8)' :
-                    rate >= 90 ? 'rgba(212, 168, 83, 0.8)' :
-                    'rgba(244, 63, 94, 0.8)'
-                ),
-                borderRadius: 6,
-                barThickness: 32
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: 'y',
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: '#1a2234',
-                    titleColor: '#f8fafc',
-                    bodyColor: '#94a3b8',
-                    borderColor: 'rgba(148, 163, 184, 0.2)',
-                    borderWidth: 1,
-                    padding: 14,
-                    cornerRadius: 8,
-                    callbacks: {
-                        label: function(context) {
-                            return context.raw.toFixed(1) + '% occupied';
+                            const value = context.raw;
+                            if (isPerUnit) {
+                                return context.dataset.label + ': $' + value.toFixed(2);
+                            }
+                            return context.dataset.label + ': $' + Math.round(value).toLocaleString();
                         }
                     }
                 }
             },
             scales: {
-                x: {
-                    min: 80,
-                    max: 100,
-                    grid: {
-                        color: 'rgba(148, 163, 184, 0.08)'
-                    },
-                    ticks: {
-                        font: {
-                            size: 11
-                        },
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                },
+                x: { grid: { display: false }, ticks: { font: { size: 11 } } },
                 y: {
-                    grid: {
-                        display: false
-                    },
+                    grid: { color: 'rgba(148, 163, 184, 0.08)' },
+                    title: { display: true, text: yAxisLabel, color: '#64748b', font: { size: 11, weight: 500 } },
                     ticks: {
-                        font: {
-                            size: 12
+                        font: { size: 11 },
+                        callback: function(value) {
+                            if (isPerUnit) return '$' + value.toFixed(0);
+                            return '$' + (value >= 1000 ? (value/1000).toFixed(0) + 'k' : value);
                         }
                     }
                 }
@@ -331,44 +248,90 @@ function createOccupancyChart() {
 }
 
 // ========================================
-// Table Population
+// Table & Summary Functions  
 // ========================================
 
-function populatePropertiesTable() {
-    const tbody = document.getElementById('propertiesTableBody');
+function populateBudgetTable() {
+    const tbody = document.getElementById('budgetTableBody');
+    if (!tbody) return;
     
-    const rows = portfolioData.properties.map(property => {
-        const yourShare = (property.noi * (property.ownershipPercent / 100)).toFixed(0);
-        const trendClass = property.trend >= 0 ? 'up' : 'down';
-        const trendIcon = property.trend >= 0 
-            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/><polyline points="17,6 23,6 23,12"/></svg>'
-            : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23,18 13.5,8.5 8.5,13.5 1,6"/><polyline points="17,18 23,18 23,12"/></svg>';
+    if (!state.dashboardData.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#64748b;">No data available. Upload a Budget Variance Report to get started.</td></tr>';
+        return;
+    }
+    
+    const rows = state.dashboardData.map(prop => {
+        const ownership = prop.ownership_percent || 0;
+        const multiplier = state.ownershipView ? (ownership / 100) : 1;
+        
+        const formatVariance = (actual, budget) => {
+            const adjActual = Math.round((actual || 0) * multiplier);
+            const adjBudget = Math.round((budget || 0) * multiplier);
+            const diff = adjActual - adjBudget;
+            const pct = adjBudget !== 0 ? ((diff / adjBudget) * 100) : 0;
+            const sign = pct >= 0 ? '+' : '';
+            
+            return {
+                actual: '$' + adjActual.toLocaleString(),
+                budget: '$' + adjBudget.toLocaleString(),
+                pct: sign + pct.toFixed(1) + '%',
+                isPositive: diff >= 0
+            };
+        };
+        
+        const formatVarianceInverse = (actual, budget) => {
+            const result = formatVariance(actual, budget);
+            result.isPositive = !result.isPositive || (actual === 0 && budget === 0);
+            return result;
+        };
+        
+        const noi = formatVariance(prop.noi_actual, prop.noi_budget);
+        const vacancies = formatVarianceInverse(prop.vacancies_actual, prop.vacancies_budget);
+        const badDebt = formatVarianceInverse(prop.bad_debt_actual, prop.bad_debt_budget);
+        const uncollectibles = formatVarianceInverse(prop.uncollectibles_actual, prop.uncollectibles_budget);
+        const netIncome = formatVariance(prop.net_income_actual, prop.net_income_budget);
+        
+        const ownershipBadge = state.ownershipView ? `<span class="ownership-badge">${ownership}%</span>` : '';
         
         return `
             <tr>
+                <td class="property-cell">
+                    <strong>${prop.name}</strong>
+                    <span>${prop.units} units ${ownershipBadge}</span>
+                </td>
                 <td>
-                    <div class="property-name">
-                        <strong>${property.name}</strong>
-                        <span>${property.address}</span>
+                    <div class="budget-cell">
+                        <span class="actual">${noi.actual}</span>
+                        <span class="budget">Budget: ${noi.budget}</span>
+                        <span class="variance ${noi.isPositive ? 'positive' : 'negative'}">${noi.pct}</span>
                     </div>
                 </td>
-                <td>${property.units}</td>
                 <td>
-                    <div class="occupancy-bar">
-                        <div class="occupancy-track">
-                            <div class="occupancy-fill" style="width: ${property.occupancy}%"></div>
-                        </div>
-                        <span>${property.occupancy.toFixed(1)}%</span>
+                    <div class="budget-cell">
+                        <span class="actual">${vacancies.actual}</span>
+                        <span class="budget">Budget: ${vacancies.budget}</span>
+                        <span class="variance ${vacancies.isPositive ? 'positive' : 'negative'}">${vacancies.pct}</span>
                     </div>
                 </td>
-                <td>$${property.grossRevenue.toLocaleString()}</td>
-                <td>$${property.noi.toLocaleString()}</td>
-                <td>${property.capRate.toFixed(1)}%</td>
-                <td>$${parseInt(yourShare).toLocaleString()}</td>
                 <td>
-                    <div class="trend-indicator ${trendClass}">
-                        ${trendIcon}
-                        ${Math.abs(property.trend).toFixed(1)}%
+                    <div class="budget-cell">
+                        <span class="actual">${badDebt.actual}</span>
+                        <span class="budget">Budget: ${badDebt.budget}</span>
+                        <span class="variance ${badDebt.isPositive ? 'positive' : 'negative'}">${badDebt.pct}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="budget-cell">
+                        <span class="actual">${uncollectibles.actual}</span>
+                        <span class="budget">Budget: ${uncollectibles.budget}</span>
+                        <span class="variance ${uncollectibles.isPositive ? 'positive' : 'negative'}">${uncollectibles.pct}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="budget-cell">
+                        <span class="actual">${netIncome.actual}</span>
+                        <span class="budget">Budget: ${netIncome.budget}</span>
+                        <span class="variance ${netIncome.isPositive ? 'positive' : 'negative'}">${netIncome.pct}</span>
                     </div>
                 </td>
             </tr>
@@ -378,51 +341,212 @@ function populatePropertiesTable() {
     tbody.innerHTML = rows;
 }
 
+function updatePortfolioSummary() {
+    const totals = {
+        noi: { actual: 0, budget: 0 },
+        netIncome: { actual: 0, budget: 0 },
+        vacancies: { actual: 0, budget: 0 },
+        badDebt: { actual: 0, budget: 0 },
+        uncollectibles: { actual: 0, budget: 0 }
+    };
+    
+    state.dashboardData.forEach(prop => {
+        const multiplier = state.ownershipView ? ((prop.ownership_percent || 0) / 100) : 1;
+        
+        totals.noi.actual += (prop.noi_actual || 0) * multiplier;
+        totals.noi.budget += (prop.noi_budget || 0) * multiplier;
+        totals.netIncome.actual += (prop.net_income_actual || 0) * multiplier;
+        totals.netIncome.budget += (prop.net_income_budget || 0) * multiplier;
+        totals.vacancies.actual += (prop.vacancies_actual || 0) * multiplier;
+        totals.vacancies.budget += (prop.vacancies_budget || 0) * multiplier;
+        totals.badDebt.actual += (prop.bad_debt_actual || 0) * multiplier;
+        totals.badDebt.budget += (prop.bad_debt_budget || 0) * multiplier;
+        totals.uncollectibles.actual += (prop.uncollectibles_actual || 0) * multiplier;
+        totals.uncollectibles.budget += (prop.uncollectibles_budget || 0) * multiplier;
+    });
+    
+    const formatCurrency = (val) => {
+        if (val >= 1000000) return '$' + (val / 1000000).toFixed(2) + 'M';
+        if (val >= 1000) return '$' + (val / 1000).toFixed(0) + 'k';
+        return '$' + Math.round(val).toLocaleString();
+    };
+    
+    const updateKpiCard = (id, actual, budget, lowerIsBetter = false) => {
+        const diff = actual - budget;
+        const pct = budget !== 0 ? ((diff / budget) * 100) : 0;
+        const isPositive = lowerIsBetter ? diff <= 0 : diff >= 0;
+        const sign = pct >= 0 ? '+' : '';
+        
+        const valueEl = document.getElementById(`kpi${id}`);
+        const budgetEl = document.getElementById(`kpi${id}Budget`);
+        const varianceEl = document.getElementById(`kpi${id}Variance`);
+        
+        if (valueEl) valueEl.textContent = formatCurrency(actual);
+        if (budgetEl) budgetEl.textContent = formatCurrency(budget);
+        if (varianceEl) {
+            varianceEl.textContent = sign + pct.toFixed(1) + '%';
+            varianceEl.classList.toggle('negative', !isPositive);
+        }
+    };
+    
+    updateKpiCard('NOI', totals.noi.actual, totals.noi.budget, false);
+    updateKpiCard('NetIncome', totals.netIncome.actual, totals.netIncome.budget, false);
+    updateKpiCard('Vacancies', totals.vacancies.actual, totals.vacancies.budget, true);
+    updateKpiCard('BadDebt', totals.badDebt.actual, totals.badDebt.budget, true);
+    updateKpiCard('Uncollectibles', totals.uncollectibles.actual, totals.uncollectibles.budget, true);
+    
+    // Update toggle button
+    const toggleBtn = document.getElementById('ownershipToggle');
+    if (toggleBtn) {
+        toggleBtn.classList.toggle('active', state.ownershipView);
+        toggleBtn.querySelector('.toggle-label').textContent = state.ownershipView ? 'RRC Share' : 'Property Totals';
+    }
+}
+
+// ========================================
+// UI Functions
+// ========================================
+
+function populateMonthSelector() {
+    const select = document.getElementById('monthSelect');
+    if (!select) return;
+    
+    if (!state.availableMonths.length) {
+        select.innerHTML = '<option value="">No data available</option>';
+        return;
+    }
+    
+    const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    select.innerHTML = state.availableMonths.map(m => 
+        `<option value="${m.year}-${m.month}">${monthNames[m.month]} ${m.year}</option>`
+    ).join('');
+    
+    // Select first available month
+    if (state.availableMonths.length > 0) {
+        state.selectedYear = state.availableMonths[0].year;
+        state.selectedMonth = state.availableMonths[0].month;
+    }
+}
+
+function populatePropertyFilter() {
+    const select = document.getElementById('propertyFilter');
+    if (!select) return;
+    
+    const options = ['<option value="all">All Properties</option>'];
+    state.properties.forEach(p => {
+        options.push(`<option value="${p.id}">${p.name}</option>`);
+    });
+    select.innerHTML = options.join('');
+}
+
+function updateBudgetSectionTitle() {
+    const subtitle = document.querySelector('.budget-section .section-subtitle');
+    if (subtitle && state.selectedMonth && state.selectedYear) {
+        const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'];
+        subtitle.textContent = `${monthNames[state.selectedMonth]} ${state.selectedYear} Actuals vs. Budget`;
+    }
+}
+
 // ========================================
 // Event Handlers
 // ========================================
 
-function initDateSelector() {
-    const dateButtons = document.querySelectorAll('.date-btn');
-    
-    dateButtons.forEach(btn => {
+function initControls() {
+    // Metric selector
+    document.querySelectorAll('.metric-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            dateButtons.forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.metric-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            // In a real app, this would filter the data
-            const range = btn.dataset.range;
-            console.log('Selected range:', range);
+            state.selectedMetric = btn.dataset.metric;
+            createTrendChart();
         });
     });
+    
+    // View mode toggle
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.viewMode = btn.dataset.view;
+            createTrendChart();
+        });
+    });
+    
+    // Property filter
+    const propertySelect = document.getElementById('propertyFilter');
+    if (propertySelect) {
+        propertySelect.addEventListener('change', (e) => {
+            state.selectedProperty = e.target.value;
+            createTrendChart();
+        });
+    }
+    
+    // Ownership toggle
+    const ownershipToggle = document.getElementById('ownershipToggle');
+    if (ownershipToggle) {
+        ownershipToggle.addEventListener('click', () => {
+            state.ownershipView = !state.ownershipView;
+            refreshAllViews();
+        });
+    }
+    
+    // Month picker - updates both dashboard data AND trend chart lookback period
+    const monthSelect = document.getElementById('monthSelect');
+    if (monthSelect) {
+        monthSelect.addEventListener('change', async (e) => {
+            const [year, month] = e.target.value.split('-').map(Number);
+            state.selectedYear = year;
+            state.selectedMonth = month;
+            
+            state.dashboardData = await fetchDashboardData(year, month);
+            updateBudgetSectionTitle();
+            populateBudgetTable();
+            updatePortfolioSummary();
+            createTrendChart(); // Refresh trend chart with new lookback period
+        });
+    }
 }
 
-function initMonthPicker() {
-    const monthSelect = document.getElementById('monthSelect');
-    
-    monthSelect.addEventListener('change', (e) => {
-        const selectedMonth = e.target.value;
-        console.log('Selected month:', selectedMonth);
-        // In a real app, this would update the dashboard data
-    });
+function refreshAllViews() {
+    createTrendChart();
+    populateBudgetTable();
+    updatePortfolioSummary();
 }
 
 // ========================================
 // Initialize Dashboard
 // ========================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Create charts
-    createRevenueChart();
-    createExpenseChart();
-    createOccupancyChart();
+async function initDashboard() {
+    // Fetch initial data
+    state.properties = await fetchProperties();
+    state.availableMonths = await fetchAvailableMonths();
     
-    // Populate table
-    populatePropertiesTable();
+    // Populate UI
+    populatePropertyFilter();
+    populateMonthSelector();
     
-    // Initialize interactive elements
-    initDateSelector();
-    initMonthPicker();
+    // Fetch dashboard data for selected month
+    if (state.availableMonths.length > 0) {
+        const { year, month } = state.availableMonths[0];
+        state.selectedYear = year;
+        state.selectedMonth = month;
+        state.dashboardData = await fetchDashboardData(year, month);
+    }
     
-    console.log('Meridian Portfolio Dashboard initialized');
-});
+    // Update displays
+    updateBudgetSectionTitle();
+    populateBudgetTable();
+    updatePortfolioSummary();
+    createTrendChart();
+    
+    // Initialize controls
+    initControls();
+    
+    console.log('Dashboard initialized');
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);

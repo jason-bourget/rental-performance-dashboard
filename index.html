@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meridian Capital | Portfolio Dashboard</title>
+    <title>Red River Corporation | Portfolio Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
@@ -11,88 +11,47 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="4" y="12" width="6" height="16" rx="1" fill="currentColor" opacity="0.6"/>
-                        <rect x="13" y="6" width="6" height="22" rx="1" fill="currentColor" opacity="0.8"/>
-                        <rect x="22" y="2" width="6" height="26" rx="1" fill="currentColor"/>
-                    </svg>
-                </div>
-                <span class="logo-text">Meridian</span>
-            </div>
-            
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" rx="1"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1"/>
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                        <polyline points="9,22 9,12 15,12 15,22"/>
-                    </svg>
-                    <span>Properties</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"/>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                    <span>Financials</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                    <span>Analytics</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14,2 14,8 20,8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
-                    <span>Reports</span>
-                </a>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <div class="user-avatar">JM</div>
-                    <div class="user-info">
-                        <span class="user-name">Jason Miller</span>
-                        <span class="user-role">Portfolio Owner</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
             <header class="header">
                 <div class="header-left">
-                    <h1 class="page-title">Portfolio Overview</h1>
-                    <p class="page-subtitle">Track your apartment investments across all properties</p>
+                    <div class="brand">
+                        <div class="brand-logo">
+                            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="4" y="12" width="6" height="16" rx="1" fill="currentColor" opacity="0.6"/>
+                                <rect x="13" y="6" width="6" height="22" rx="1" fill="currentColor" opacity="0.8"/>
+                                <rect x="22" y="2" width="6" height="26" rx="1" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <div class="brand-text">
+                            <span class="brand-name">Red River Corporation</span>
+                            <span class="brand-tagline">Portfolio Dashboard</span>
+                        </div>
+                    </div>
                 </div>
                 <div class="header-right">
-                    <div class="date-selector">
-                        <button class="date-btn" data-range="1m">1M</button>
-                        <button class="date-btn" data-range="3m">3M</button>
-                        <button class="date-btn" data-range="6m">6M</button>
-                        <button class="date-btn active" data-range="1y">1Y</button>
-                        <button class="date-btn" data-range="all">All</button>
-                    </div>
+                    <a href="/admin" class="admin-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                        Import Data
+                    </a>
+                    <button id="ownershipToggle" class="ownership-toggle">
+                        <span class="toggle-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </span>
+                        <span class="toggle-label">Property Totals</span>
+                        <span class="toggle-switch">
+                            <span class="toggle-knob"></span>
+                        </span>
+                    </button>
                     <div class="month-picker">
+                        <label>Reporting Period</label>
                         <select id="monthSelect">
                             <option value="2025-12">December 2025</option>
                             <option value="2025-11">November 2025</option>
@@ -109,200 +68,155 @@
             <section class="kpi-grid">
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <span class="kpi-label">Total Portfolio Value</span>
-                        <span class="kpi-trend up">+4.2%</span>
+                        <span class="kpi-label">Net Operating Income</span>
+                        <span class="kpi-variance" id="kpiNOIVariance">+2.4%</span>
                     </div>
-                    <div class="kpi-value">$12.4M</div>
-                    <div class="kpi-subtext">Your ownership: $1.86M (15%)</div>
+                    <div class="kpi-value" id="kpiNOI">$612k</div>
+                    <div class="kpi-subtext">Budget: <span id="kpiNOIBudget">$598k</span></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <span class="kpi-label">Monthly Cash Flow</span>
-                        <span class="kpi-trend up">+2.8%</span>
+                        <span class="kpi-label">Net Income</span>
+                        <span class="kpi-variance" id="kpiNetIncomeVariance">+1.8%</span>
                     </div>
-                    <div class="kpi-value">$18,420</div>
-                    <div class="kpi-subtext">Your share: $2,763/mo</div>
+                    <div class="kpi-value" id="kpiNetIncome">$378k</div>
+                    <div class="kpi-subtext">Budget: <span id="kpiNetIncomeBudget">$371k</span></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <span class="kpi-label">Occupancy Rate</span>
-                        <span class="kpi-trend up">+1.5%</span>
+                        <span class="kpi-label">Vacancies</span>
+                        <span class="kpi-variance" id="kpiVacanciesVariance">-5.2%</span>
                     </div>
-                    <div class="kpi-value">94.2%</div>
-                    <div class="kpi-subtext">Market avg: 91.8%</div>
+                    <div class="kpi-value" id="kpiVacancies">$42,800</div>
+                    <div class="kpi-subtext">Budget: <span id="kpiVacanciesBudget">$45,200</span></div>
                 </div>
                 <div class="kpi-card">
                     <div class="kpi-header">
-                        <span class="kpi-label">Annualized Return</span>
-                        <span class="kpi-trend neutral">+0.1%</span>
+                        <span class="kpi-label">Bad Debt (Rent)</span>
+                        <span class="kpi-variance" id="kpiBadDebtVariance">+8.1%</span>
                     </div>
-                    <div class="kpi-value">8.7%</div>
-                    <div class="kpi-subtext">Cash-on-cash: 6.4%</div>
+                    <div class="kpi-value" id="kpiBadDebt">$18,420</div>
+                    <div class="kpi-subtext">Budget: <span id="kpiBadDebtBudget">$17,040</span></div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Uncollectibles</span>
+                        <span class="kpi-variance" id="kpiUncollectiblesVariance">-3.2%</span>
+                    </div>
+                    <div class="kpi-value" id="kpiUncollectibles">$8,640</div>
+                    <div class="kpi-subtext">Budget: <span id="kpiUncollectiblesBudget">$8,928</span></div>
                 </div>
             </section>
 
-            <!-- Charts Row -->
-            <section class="charts-row">
-                <div class="chart-card large">
-                    <div class="card-header">
-                        <h3>Revenue & NOI Trend</h3>
-                        <div class="chart-legend">
-                            <span class="legend-item"><span class="legend-dot revenue"></span>Gross Revenue</span>
-                            <span class="legend-item"><span class="legend-dot noi"></span>Net Operating Income</span>
+            <!-- Trendlines Section -->
+            <section class="trend-section">
+                <div class="section-header">
+                    <h3>12-Month Trends</h3>
+                    <div class="trend-controls">
+                        <div class="control-group">
+                            <label>Property</label>
+                            <select id="propertyFilter">
+                                <option value="all">All Properties</option>
+                                <option value="alexis-park">Alexis Park</option>
+                                <option value="aspen-i">Aspen I</option>
+                                <option value="aspen-ii">Aspen II</option>
+                                <option value="hillside">Hillside</option>
+                                <option value="seasons-i">Seasons I</option>
+                                <option value="seasons-ii">Seasons II</option>
+                                <option value="sommerset">Sommerset</option>
+                            </select>
+                        </div>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="absolute">Absolute</button>
+                            <button class="view-btn" data-view="perUnit">Per Unit</button>
                         </div>
                     </div>
-                    <div class="chart-container">
-                        <canvas id="revenueChart"></canvas>
-                    </div>
                 </div>
-                <div class="chart-card">
-                    <div class="card-header">
-                        <h3>Expense Breakdown</h3>
-                        <span class="card-subtitle">December 2025</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="expenseChart"></canvas>
+                
+                <div class="metric-tabs">
+                    <button class="metric-btn active" data-metric="noi">
+                        <span class="metric-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </span>
+                        Net Operating Income
+                    </button>
+                    <button class="metric-btn" data-metric="net_income">
+                        <span class="metric-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"/>
+                                <polyline points="17,6 23,6 23,12"/>
+                            </svg>
+                        </span>
+                        Net Income
+                    </button>
+                    <button class="metric-btn" data-metric="vacancies">
+                        <span class="metric-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                <line x1="9" y1="22" x2="9" y2="12"/>
+                                <line x1="15" y1="22" x2="15" y2="12"/>
+                            </svg>
+                        </span>
+                        Vacancies
+                    </button>
+                    <button class="metric-btn" data-metric="bad_debt">
+                        <span class="metric-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="15" y1="9" x2="9" y2="15"/>
+                                <line x1="9" y1="9" x2="15" y2="15"/>
+                            </svg>
+                        </span>
+                        Bad Debt (Rent)
+                    </button>
+                    <button class="metric-btn" data-metric="uncollectibles">
+                        <span class="metric-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </span>
+                        Uncollectibles
+                    </button>
+                </div>
+                
+                <div class="chart-card trend-chart-card">
+                    <div class="chart-container large">
+                        <canvas id="trendChart"></canvas>
                     </div>
                 </div>
             </section>
 
-            <!-- Properties Table -->
-            <section class="properties-section">
+            <!-- Budget Comparison Section -->
+            <section class="budget-section">
                 <div class="section-header">
-                    <h3>Property Performance</h3>
-                    <div class="section-actions">
-                        <button class="btn-secondary">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                                <polyline points="7,10 12,15 17,10"/>
-                                <line x1="12" y1="15" x2="12" y2="3"/>
-                            </svg>
-                            Export
-                        </button>
-                    </div>
+                    <h3>Monthly Budget Comparison</h3>
+                    <span class="section-subtitle">December 2025 Actuals vs. Budget</span>
                 </div>
+                
                 <div class="table-container">
-                    <table class="properties-table">
+                    <table class="budget-table">
                         <thead>
                             <tr>
                                 <th>Property</th>
-                                <th>Units</th>
-                                <th>Occupancy</th>
-                                <th>Gross Revenue</th>
                                 <th>NOI</th>
-                                <th>Cap Rate</th>
-                                <th>Your Share</th>
-                                <th>Trend</th>
+                                <th>Vacancies</th>
+                                <th>Bad Debt (Rent)</th>
+                                <th>Uncollectibles</th>
+                                <th>Net Income</th>
                             </tr>
                         </thead>
-                        <tbody id="propertiesTableBody">
+                        <tbody id="budgetTableBody">
                             <!-- Populated by JavaScript -->
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- Bottom Row -->
-            <section class="bottom-row">
-                <div class="chart-card">
-                    <div class="card-header">
-                        <h3>Occupancy by Property</h3>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="occupancyChart"></canvas>
-                    </div>
-                </div>
-                <div class="metrics-card">
-                    <div class="card-header">
-                        <h3>Key Metrics</h3>
-                        <span class="card-subtitle">Portfolio Averages</span>
-                    </div>
-                    <div class="metrics-list">
-                        <div class="metric-row">
-                            <span class="metric-label">Average Rent/Unit</span>
-                            <span class="metric-value">$1,847</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Rent/Sq Ft</span>
-                            <span class="metric-value">$2.14</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Expense Ratio</span>
-                            <span class="metric-value">38.2%</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Debt Service Coverage</span>
-                            <span class="metric-value">1.42x</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Vacancy Loss</span>
-                            <span class="metric-value">$4,280</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Collections Rate</span>
-                            <span class="metric-value">98.4%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="activity-card">
-                    <div class="card-header">
-                        <h3>Recent Activity</h3>
-                    </div>
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon lease">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                                    <polyline points="14,2 14,8 20,8"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <span class="activity-title">New lease signed</span>
-                                <span class="activity-detail">Unit 4B @ The Ashford • $2,150/mo</span>
-                                <span class="activity-time">2 days ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon payment">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="1" x2="12" y2="23"/>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <span class="activity-title">Distribution processed</span>
-                                <span class="activity-detail">Q4 2025 • $8,294 deposited</span>
-                                <span class="activity-time">5 days ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon maintenance">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <span class="activity-title">Maintenance completed</span>
-                                <span class="activity-detail">HVAC repair @ Maple Gardens • $840</span>
-                                <span class="activity-time">1 week ago</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon vacancy">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                                    <polyline points="9,22 9,12 15,12 15,22"/>
-                                </svg>
-                            </div>
-                            <div class="activity-content">
-                                <span class="activity-title">Unit turned over</span>
-                                <span class="activity-detail">Unit 12A @ Riverside Terrace ready</span>
-                                <span class="activity-time">1 week ago</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 

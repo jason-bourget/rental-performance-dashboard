@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RRC Admin | Data Import</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-card: #1a2234;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-gold: #d4a853;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --border-color: rgba(148, 163, 184, 0.1);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+        
+        .back-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .back-link:hover { text-decoration: underline; }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+        
+        .card h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 48px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--accent-gold);
+            background: rgba(212, 168, 83, 0.05);
+        }
+        
+        .upload-zone svg {
+            width: 48px;
+            height: 48px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+        
+        .upload-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .upload-zone small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        #fileInput { display: none; }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .result {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .result.success {
+            display: block;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent-emerald);
+        }
+        
+        .result.error {
+            display: block;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            color: var(--accent-rose);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+        
+        td {
+            font-size: 0.9rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+        }
+        
+        .status-badge.failed {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--accent-rose);
+        }
+        
+        .units-input,
+        .ownership-input {
+            width: 70px;
+            padding: 6px 10px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        
+        .units-input:focus,
+        .ownership-input:focus {
+            outline: none;
+            border-color: var(--accent-gold);
+        }
+        
+        .save-btn {
+            padding: 6px 12px;
+            background: transparent;
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        
+        .save-btn:hover {
+            background: var(--accent-gold);
+            color: var(--bg-primary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Data Import</h1>
+            <a href="/" class="back-link">← Back to Dashboard</a>
+        </header>
+        
+        <div class="card">
+            <h2>Upload Budget Variance Report</h2>
+            <div class="upload-zone" id="uploadZone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>Drag and drop your Excel file here</p>
+                <small>or click to browse (.xlsx, .xls)</small>
+            </div>
+            <input type="file" id="fileInput" accept=".xlsx,.xls">
+            
+            <div id="uploadResult" class="result"></div>
+        </div>
+        
+        <div class="card">
+            <h2>Property Settings</h2>
+            <table id="propertiesTable">
+                <thead>
+                    <tr>
+                        <th>Property</th>
+                        <th>Units</th>
+                        <th>RRC Ownership %</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="propertiesBody">
+                    <tr><td colspan="4" class="empty-state">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card">
+            <h2>Import History</h2>
+            <table id="importsTable">
+                <thead>
+                    <tr>
+                        <th>Imported</th>
+                        <th>Report Period</th>
+                        <th>File</th>
+                        <th>Properties</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="importsBody">
+                    <tr><td colspan="4" class="empty-state">No imports yet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = '';
+        
+        // Upload functionality
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadResult = document.getElementById('uploadResult');
+        
+        uploadZone.addEventListener('click', () => fileInput.click());
+        
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+        
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+        
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) uploadFile(file);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) uploadFile(file);
+        });
+        
+        async function uploadFile(file) {
+            uploadResult.className = 'result';
+            uploadResult.style.display = 'none';
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                uploadZone.innerHTML = '<p>Uploading and processing...</p>';
+                
+                const response = await fetch(`${API_BASE}/api/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    uploadResult.className = 'result success';
+                    uploadResult.innerHTML = `
+                        <strong>Success!</strong> Imported ${data.imported} properties for ${getMonthName(data.month)} ${data.year}
+                        <br><small>${data.properties.join(', ')}</small>
+                    `;
+                    loadImports();
+                } else {
+                    uploadResult.className = 'result error';
+                    uploadResult.innerHTML = `<strong>Error:</strong> ${data.error}`;
+                }
+            } catch (err) {
+                uploadResult.className = 'result error';
+                uploadResult.innerHTML = `<strong>Error:</strong> ${err.message}`;
+            }
+            
+            // Reset upload zone
+            uploadZone.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17,8 12,3 7,8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>Drag and drop your Excel file here</p>
+                <small>or click to browse (.xlsx, .xls)</small>
+            `;
+            fileInput.value = '';
+        }
+        
+        function getMonthName(month) {
+            const months = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'];
+            return months[month] || month;
+        }
+        
+        // Load properties
+        async function loadProperties() {
+            try {
+                const response = await fetch(`${API_BASE}/api/properties`);
+                const properties = await response.json();
+                
+                const tbody = document.getElementById('propertiesBody');
+                tbody.innerHTML = properties.map(p => `
+                    <tr data-id="${p.id}">
+                        <td>${p.name}</td>
+                        <td>
+                            <input type="number" class="units-input" 
+                                   value="${p.units}" 
+                                   min="1" step="1">
+                        </td>
+                        <td>
+                            <input type="number" class="ownership-input" 
+                                   value="${p.ownership_percent}" 
+                                   min="0" max="100" step="0.1">%
+                        </td>
+                        <td>
+                            <button class="save-btn" onclick="saveProperty('${p.id}', this)">Save</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading properties:', err);
+            }
+        }
+        
+        async function saveProperty(id, btn) {
+            const row = btn.closest('tr');
+            const units = parseInt(row.querySelector('.units-input').value);
+            const ownership = parseFloat(row.querySelector('.ownership-input').value);
+            
+            try {
+                await fetch(`${API_BASE}/api/properties/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ units, ownership_percent: ownership })
+                });
+                btn.textContent = 'Saved!';
+                setTimeout(() => btn.textContent = 'Save', 1500);
+            } catch (err) {
+                alert('Error saving: ' + err.message);
+            }
+        }
+        
+        // Load import history
+        async function loadImports() {
+            try {
+                const response = await fetch(`${API_BASE}/api/imports`);
+                const imports = await response.json();
+                
+                const tbody = document.getElementById('importsBody');
+                
+                if (imports.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No imports yet</td></tr>';
+                    return;
+                }
+                
+                const monthNames = ['', 'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+                
+                tbody.innerHTML = imports.map(i => `
+                    <tr>
+                        <td>${new Date(i.imported_at).toLocaleDateString()}</td>
+                        <td>${i.report_month ? monthNames[i.report_month] + ' ' + i.report_year : '-'}</td>
+                        <td>${i.filename}</td>
+                        <td>${i.records_imported}</td>
+                        <td>
+                            <span class="status-badge ${i.status}">${i.status}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading imports:', err);
+            }
+        }
+        
+        // Initialize
+        loadProperties();
+        loadImports();
+    </script>
+</body>
+</html>

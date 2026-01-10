@@ -1,0 +1,30 @@
+{
+  "name": "rental-performance-dashboard",
+  "version": "1.0.0",
+  "description": "A beautiful single-page web dashboard for tracking apartment building investment performance. Built for fractional property owners to monitor monthly and historical performance across standard rental metrics.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jason-bourget/rental-performance-dashboard.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jason-bourget/rental-performance-dashboard/issues"
+  },
+  "homepage": "https://github.com/jason-bourget/rental-performance-dashboard#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.6.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "multer": "^2.0.2",
+    "xlsx": "^0.18.5"
+  }
+}
