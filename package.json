@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A beautiful single-page web dashboard for tracking apartment building investment performance. Built for fractional property owners to monitor monthly and historical performance across standard rental metrics.",
   "main": "server/index.js",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "start": "node server/index.js",
     "dev": "node server/index.js"
