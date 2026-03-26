@@ -1,8 +1,20 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 
-// Create/open database
-const db = new Database(path.join(__dirname, 'portfolio.db'));
+// Use persistent volume in production, local directory in development
+const dataDir = process.env.NODE_ENV === 'production' 
+    ? '/app/data' 
+    : __dirname;
+
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+}
+
+const dbPath = path.join(dataDir, 'portfolio.db');
+console.log(`Database path: ${dbPath}`);
+
+const db = new Database(dbPath);
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
