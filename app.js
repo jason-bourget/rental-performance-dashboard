@@ -20,7 +20,9 @@ let state = {
     selectedYear: new Date().getFullYear(),
     selectedMonth: new Date().getMonth() || 12, // Default to current month or December
     availableMonths: [],
-    trendChart: null
+    trendChart: null,
+    kpiView: 'monthly',
+    kpiAverageData: null
 };
 
 // ========================================
@@ -67,6 +69,17 @@ async function fetchProperties() {
         return await response.json();
     } catch (err) {
         console.error('Error fetching properties:', err);
+        return [];
+    }
+}
+
+async function fetchKpiAverages(year, month) {
+    try {
+        const response = await fetch(`${API_BASE}/api/kpi-averages/${year}/${month}`);
+        if (!response.ok) throw new Error('Failed to fetch KPI averages');
+        return await response.json();
+    } catch (err) {
+        console.error('Error fetching KPI averages:', err);
         return [];
     }
 }
@@ -350,19 +363,29 @@ function updatePortfolioSummary() {
         uncollectibles: { actual: 0, budget: 0 }
     };
     
-    state.dashboardData.forEach(prop => {
+    const isAverage = state.kpiView === 'average';
+    const sourceData = isAverage ? state.kpiAverageData : state.dashboardData;
+    
+    if (!sourceData || !sourceData.length) {
+        return;
+    }
+
+    const actualKey = isAverage ? 'avg_actual' : 'actual';
+    const budgetKey = isAverage ? 'avg_budget' : 'budget';
+    
+    sourceData.forEach(prop => {
         const multiplier = state.ownershipView ? ((prop.ownership_percent || 0) / 100) : 1;
         
-        totals.noi.actual += (prop.noi_actual || 0) * multiplier;
-        totals.noi.budget += (prop.noi_budget || 0) * multiplier;
-        totals.netIncome.actual += (prop.net_income_actual || 0) * multiplier;
-        totals.netIncome.budget += (prop.net_income_budget || 0) * multiplier;
-        totals.vacancies.actual += (prop.vacancies_actual || 0) * multiplier;
-        totals.vacancies.budget += (prop.vacancies_budget || 0) * multiplier;
-        totals.badDebt.actual += (prop.bad_debt_actual || 0) * multiplier;
-        totals.badDebt.budget += (prop.bad_debt_budget || 0) * multiplier;
-        totals.uncollectibles.actual += (prop.uncollectibles_actual || 0) * multiplier;
-        totals.uncollectibles.budget += (prop.uncollectibles_budget || 0) * multiplier;
+        totals.noi.actual += (prop[`noi_${actualKey}`] || 0) * multiplier;
+        totals.noi.budget += (prop[`noi_${budgetKey}`] || 0) * multiplier;
+        totals.netIncome.actual += (prop[`net_income_${actualKey}`] || 0) * multiplier;
+        totals.netIncome.budget += (prop[`net_income_${budgetKey}`] || 0) * multiplier;
+        totals.vacancies.actual += (prop[`vacancies_${actualKey}`] || 0) * multiplier;
+        totals.vacancies.budget += (prop[`vacancies_${budgetKey}`] || 0) * multiplier;
+        totals.badDebt.actual += (prop[`bad_debt_${actualKey}`] || 0) * multiplier;
+        totals.badDebt.budget += (prop[`bad_debt_${budgetKey}`] || 0) * multiplier;
+        totals.uncollectibles.actual += (prop[`uncollectibles_${actualKey}`] || 0) * multiplier;
+        totals.uncollectibles.budget += (prop[`uncollectibles_${budgetKey}`] || 0) * multiplier;
     });
     
     const formatCurrency = (val) => {
@@ -370,6 +393,8 @@ function updatePortfolioSummary() {
         if (val >= 1000) return '$' + (val / 1000).toFixed(0) + 'k';
         return '$' + Math.round(val).toLocaleString();
     };
+    
+    const budgetLabel = isAverage ? 'Avg Budget' : 'Budget';
     
     const updateKpiCard = (id, actual, budget, lowerIsBetter = false) => {
         const diff = actual - budget;
@@ -382,7 +407,10 @@ function updatePortfolioSummary() {
         const varianceEl = document.getElementById(`kpi${id}Variance`);
         
         if (valueEl) valueEl.textContent = formatCurrency(actual);
-        if (budgetEl) budgetEl.textContent = formatCurrency(budget);
+        if (budgetEl) {
+            budgetEl.textContent = formatCurrency(budget);
+            budgetEl.parentElement.firstChild.textContent = `${budgetLabel}: `;
+        }
         if (varianceEl) {
             varianceEl.textContent = sign + pct.toFixed(1) + '%';
             varianceEl.classList.toggle('negative', !isPositive);
@@ -484,6 +512,20 @@ function initControls() {
         });
     }
     
+    // KPI view toggle (Monthly / 12-Mo Avg)
+    document.querySelectorAll('.kpi-view-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            document.querySelectorAll('.kpi-view-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            state.kpiView = btn.dataset.kpiView;
+            
+            if (state.kpiView === 'average' && !state.kpiAverageData) {
+                state.kpiAverageData = await fetchKpiAverages(state.selectedYear, state.selectedMonth);
+            }
+            updatePortfolioSummary();
+        });
+    });
+
     // Ownership toggle
     const ownershipToggle = document.getElementById('ownershipToggle');
     if (ownershipToggle) {
@@ -502,10 +544,16 @@ function initControls() {
             state.selectedMonth = month;
             
             state.dashboardData = await fetchDashboardData(year, month);
+            state.kpiAverageData = null; // invalidate cached averages
+            
+            if (state.kpiView === 'average') {
+                state.kpiAverageData = await fetchKpiAverages(year, month);
+            }
+            
             updateBudgetSectionTitle();
             populateBudgetTable();
             updatePortfolioSummary();
-            createTrendChart(); // Refresh trend chart with new lookback period
+            createTrendChart();
         });
     }
 }

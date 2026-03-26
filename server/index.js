@@ -216,6 +216,52 @@ app.get('/api/available-months', requireAuth, (req, res) => {
     }
 });
 
+// Get 12-month trailing averages per property for KPI cards
+app.get('/api/kpi-averages/:year/:month', requireAuth, (req, res) => {
+    try {
+        const endYear = parseInt(req.params.year);
+        const endMonth = parseInt(req.params.month);
+
+        // Build the list of 12 (year, month) pairs ending at endYear/endMonth
+        const periods = [];
+        let y = endYear, m = endMonth;
+        for (let i = 0; i < 12; i++) {
+            periods.push({ year: y, month: m });
+            m--;
+            if (m < 1) { m = 12; y--; }
+        }
+
+        const periodClauses = periods.map(() => '(m.year = ? AND m.month = ?)').join(' OR ');
+        const params = periods.flatMap(p => [p.year, p.month]);
+
+        const query = `
+            SELECT
+                p.id, p.name, p.units, p.ownership_percent,
+                AVG(m.noi_actual) as noi_avg_actual,
+                AVG(m.noi_budget) as noi_avg_budget,
+                AVG(m.net_income_actual) as net_income_avg_actual,
+                AVG(m.net_income_budget) as net_income_avg_budget,
+                AVG(m.vacancies_actual) as vacancies_avg_actual,
+                AVG(m.vacancies_budget) as vacancies_avg_budget,
+                AVG(m.bad_debt_actual) as bad_debt_avg_actual,
+                AVG(m.bad_debt_budget) as bad_debt_avg_budget,
+                AVG(m.uncollectibles_actual) as uncollectibles_avg_actual,
+                AVG(m.uncollectibles_budget) as uncollectibles_avg_budget,
+                COUNT(m.id) as months_with_data
+            FROM properties p
+            LEFT JOIN monthly_data m ON p.id = m.property_id
+                AND (${periodClauses})
+            GROUP BY p.id
+            ORDER BY p.name
+        `;
+
+        const data = db.prepare(query).all(...params);
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Upload and import Excel file
 app.post('/api/upload', requireAuth, upload.single('file'), (req, res) => {
     try {
