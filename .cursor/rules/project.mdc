@@ -1,0 +1,26 @@
+---
+description: Project context and deployment workflow for the RRC Portfolio Dashboard
+globs:
+alwaysApply: true
+---
+
+# RRC Portfolio Dashboard
+
+## Stack
+- **Frontend**: Vanilla HTML/CSS/JS with Chart.js
+- **Backend**: Node.js + Express + SQLite (better-sqlite3)
+- **Hosting**: Railway (auto-deploys from GitHub)
+
+## Deployment
+- Push to GitHub and Railway automatically redeploys. No manual deploy step needed.
+- Railway uses a persistent Volume mounted at `/app/data` for the SQLite database.
+- Environment variables (`ACCESS_PASSWORD`, `SESSION_SECRET`) are set in the Railway dashboard.
+
+## Key Files
+- `server/index.js` — Express server, API routes, auth middleware
+- `server/database.js` — SQLite init, schema, seed data
+- `server/excel-parser.js` — Budget Variance Report Excel parsing
+- `app.js` — Client-side dashboard logic
+- `index.html` — Main dashboard page
+- `admin.html` — Admin page for uploads and property settings
+- `styles.css` — Global styles (dark theme)

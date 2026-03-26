@@ -188,8 +188,8 @@ async function createTrendChart() {
             backgroundColor: color + '20',
             borderWidth: 2.5,
             fill: state.selectedProperty !== 'all',
-            tension: 0.15,
-            pointRadius: state.selectedProperty === 'all' ? 0 : 4,
+            tension: 0,
+            pointRadius: 4,
             pointHoverRadius: 5,
             pointBackgroundColor: color,
             pointBorderColor: '#0a0e17',
@@ -394,9 +394,25 @@ function updatePortfolioSummary() {
         return '$' + Math.round(val).toLocaleString();
     };
     
+    // Compute 12-month average totals (for the inline avg line in monthly mode)
+    const avgTotals = {
+        noi: 0, netIncome: 0, vacancies: 0, badDebt: 0, uncollectibles: 0
+    };
+    const hasAvgData = state.kpiAverageData && state.kpiAverageData.length > 0;
+    if (hasAvgData) {
+        state.kpiAverageData.forEach(prop => {
+            const multiplier = state.ownershipView ? ((prop.ownership_percent || 0) / 100) : 1;
+            avgTotals.noi += (prop.noi_avg_actual || 0) * multiplier;
+            avgTotals.netIncome += (prop.net_income_avg_actual || 0) * multiplier;
+            avgTotals.vacancies += (prop.vacancies_avg_actual || 0) * multiplier;
+            avgTotals.badDebt += (prop.bad_debt_avg_actual || 0) * multiplier;
+            avgTotals.uncollectibles += (prop.uncollectibles_avg_actual || 0) * multiplier;
+        });
+    }
+
     const budgetLabel = isAverage ? 'Avg Budget' : 'Budget';
     
-    const updateKpiCard = (id, actual, budget, lowerIsBetter = false) => {
+    const updateKpiCard = (id, actual, budget, avgValue, lowerIsBetter = false) => {
         const diff = actual - budget;
         const pct = budget !== 0 ? ((diff / budget) * 100) : 0;
         const isPositive = lowerIsBetter ? diff <= 0 : diff >= 0;
@@ -405,6 +421,8 @@ function updatePortfolioSummary() {
         const valueEl = document.getElementById(`kpi${id}`);
         const budgetEl = document.getElementById(`kpi${id}Budget`);
         const varianceEl = document.getElementById(`kpi${id}Variance`);
+        const avgEl = document.getElementById(`kpi${id}Avg`);
+        const avgLineEl = document.getElementById(`kpi${id}AvgLine`);
         
         if (valueEl) valueEl.textContent = formatCurrency(actual);
         if (budgetEl) {
@@ -415,13 +433,19 @@ function updatePortfolioSummary() {
             varianceEl.textContent = sign + pct.toFixed(1) + '%';
             varianceEl.classList.toggle('negative', !isPositive);
         }
+        if (avgLineEl) {
+            avgLineEl.style.display = isAverage ? 'none' : '';
+        }
+        if (avgEl && hasAvgData) {
+            avgEl.textContent = formatCurrency(avgValue);
+        }
     };
     
-    updateKpiCard('NOI', totals.noi.actual, totals.noi.budget, false);
-    updateKpiCard('NetIncome', totals.netIncome.actual, totals.netIncome.budget, false);
-    updateKpiCard('Vacancies', totals.vacancies.actual, totals.vacancies.budget, true);
-    updateKpiCard('BadDebt', totals.badDebt.actual, totals.badDebt.budget, true);
-    updateKpiCard('Uncollectibles', totals.uncollectibles.actual, totals.uncollectibles.budget, true);
+    updateKpiCard('NOI', totals.noi.actual, totals.noi.budget, avgTotals.noi, false);
+    updateKpiCard('NetIncome', totals.netIncome.actual, totals.netIncome.budget, avgTotals.netIncome, false);
+    updateKpiCard('Vacancies', totals.vacancies.actual, totals.vacancies.budget, avgTotals.vacancies, true);
+    updateKpiCard('BadDebt', totals.badDebt.actual, totals.badDebt.budget, avgTotals.badDebt, true);
+    updateKpiCard('Uncollectibles', totals.uncollectibles.actual, totals.uncollectibles.budget, avgTotals.uncollectibles, true);
     
     // Update toggle button
     const toggleBtn = document.getElementById('ownershipToggle');
@@ -544,11 +568,7 @@ function initControls() {
             state.selectedMonth = month;
             
             state.dashboardData = await fetchDashboardData(year, month);
-            state.kpiAverageData = null; // invalidate cached averages
-            
-            if (state.kpiView === 'average') {
-                state.kpiAverageData = await fetchKpiAverages(year, month);
-            }
+            state.kpiAverageData = await fetchKpiAverages(year, month);
             
             updateBudgetSectionTitle();
             populateBudgetTable();
@@ -577,12 +597,13 @@ async function initDashboard() {
     populatePropertyFilter();
     populateMonthSelector();
     
-    // Fetch dashboard data for selected month
+    // Fetch dashboard data and 12-month averages for selected month
     if (state.availableMonths.length > 0) {
         const { year, month } = state.availableMonths[0];
         state.selectedYear = year;
         state.selectedMonth = month;
         state.dashboardData = await fetchDashboardData(year, month);
+        state.kpiAverageData = await fetchKpiAverages(year, month);
     }
     
     // Update displays
